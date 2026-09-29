@@ -6,3 +6,9 @@
 .no-results{grid-column:1/-1;background:#fff;border:1px dashed #cfd2d5;border-radius:18px;padding:40px;text-align:center;color:#737881}
 @media(max-width:900px){.product-finder{margin:28px 16px 0}.finder-copy{grid-template-columns:1fr}.finder-copy p{margin-top:10px}}
 @media(max-width:560px){.product-finder{padding:23px 16px}.finder-search input{font-size:13px}.finder-search{padding-left:12px}.finder-copy h2{font-size:31px}}
+
+.status-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 20%,#e7eaee,#f7f7f5 55%)}
+.status-card{width:min(560px,100%);background:#fff;border:1px solid #e4e4df;border-radius:24px;padding:42px;text-align:center;box-shadow:0 25px 70px #11182712}
+.status-card .brand{justify-content:center;margin-bottom:34px}.status-icon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:#0b0d12;color:#fff;font-size:28px;margin:0 auto 22px}
+.status-card h1{font-size:42px;letter-spacing:-.05em;margin:0 0 14px}.status-card p{color:#6d727a;line-height:1.65;margin:0 auto 28px;max-width:440px}
+.checkout:disabled{opacity:.6;cursor:wait}

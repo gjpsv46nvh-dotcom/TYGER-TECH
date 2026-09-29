@@ -1,0 +1,8 @@
+{
+  "name": "tyger-tech-v3",
+  "private": true,
+  "version": "3.0.0",
+  "dependencies": {
+    "stripe": "^18.5.0"
+  }
+}
