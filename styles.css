@@ -12,3 +12,5 @@
 .status-card .brand{justify-content:center;margin-bottom:34px}.status-icon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:#0b0d12;color:#fff;font-size:28px;margin:0 auto 22px}
 .status-card h1{font-size:42px;letter-spacing:-.05em;margin:0 0 14px}.status-card p{color:#6d727a;line-height:1.65;margin:0 auto 28px;max-width:440px}
 .checkout:disabled{opacity:.6;cursor:wait}
+
+.build-chip{position:fixed;right:12px;bottom:12px;z-index:100;background:#0b0d12;color:#fff;border:1px solid #ffffff22;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:900;letter-spacing:.12em;box-shadow:0 8px 25px #0003}

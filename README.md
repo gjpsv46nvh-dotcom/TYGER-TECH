@@ -1,17 +1,18 @@
-# TYGER TECH V5 — DEPLOYMENT FIX
+# TYGER TECH V6 — CLEAN STATIC BUILD
 
-This version fixes the Vercel build error shown in the deployment:
-`api/create-checkout-session.js` was referenced in `vercel.json`, but GitHub mobile had flattened/deleted the `api` directory.
+This is the clean storefront deployment.
 
-## Fix in V5
-- Removed the invalid Vercel `functions` pattern.
-- The storefront can deploy successfully even if GitHub mobile flattens the API folder.
-- Product Finder, cart and V4 storefront remain.
-- Stripe checkout source is still included under `api/` in this ZIP for a proper folder-preserving upload.
+V6 deliberately removes Stripe/serverless API files so the storefront can deploy independently and reliably.
 
-## Important
-Stripe remains test-only and will not work until:
-1. `api/create-checkout-session.js` exists as that exact path in the repository, and
-2. `STRIPE_SECRET_KEY` is added to Vercel.
+Included:
+- TYGER TECH retail design
+- Product Finder/search
+- Quick category searches
+- Demo product catalogue
+- Working demo cart
+- Mobile responsive design
+- Visible `TYGER TECH • V6` build marker
 
-Do not use a live Stripe key yet.
+Payments are intentionally disabled in this build. Stripe will be added only after V6 is confirmed live.
+
+Upload/replace ALL files in the repository with this V6 set.

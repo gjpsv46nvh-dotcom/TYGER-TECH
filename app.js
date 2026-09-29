@@ -26,20 +26,7 @@ $("#closeSearch").onclick=()=>$("#searchPanel").classList.remove("open");
 $("#searchInput").oninput=e=>{const q=e.target.value.toLowerCase().trim();$("#searchResults").innerHTML=q?products.filter(p=>(p.name+" "+p.desc).toLowerCase().includes(q)).map(p=>`<div class="search-result"><b>${p.name}</b> — $${p.price.toFixed(2)}</div>`).join(""):""}
 document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{const f=b.dataset.filter;render(products.filter(p=>p.device===f||p.device==="all"));location.hash="cases"})
 $("#newsletterForm").onsubmit=e=>{e.preventDefault();toast("Thanks — you're on the list.");e.target.reset()}
-$("#checkoutBtn").onclick=async()=>{
- if(!cart.length){toast("Your bag is empty.");return}
- const btn=$("#checkoutBtn"); const old=btn.textContent;
- btn.disabled=true; btn.textContent="Opening secure checkout…";
- try{
-   const res=await fetch("/api/create-checkout-session",{
-     method:"POST",headers:{"Content-Type":"application/json"},
-     body:JSON.stringify({items:cart.map(p=>({id:p.id,quantity:1}))})
-   });
-   const data=await res.json();
-   if(!res.ok) throw new Error(data.error||"Checkout unavailable");
-   if(data.url) window.location.href=data.url;
- }catch(e){toast(e.message||"Checkout unavailable");btn.disabled=false;btn.textContent=old}
-}
+$("#checkoutBtn").onclick=()=>toast("Secure checkout is coming next — V6 storefront is live.");
 function toast(msg){let t=document.querySelector(".toast");if(!t){t=document.createElement("div");t.className="toast";document.body.appendChild(t)}t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
 render();updateCart();
 function findProducts(q){
