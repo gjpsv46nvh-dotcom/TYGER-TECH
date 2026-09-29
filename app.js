@@ -10,7 +10,12 @@ const products=[
 let cart=[];
 const $=s=>document.querySelector(s);
 function productHTML(p){return `<article class="product"><div class="product-image"><span class="badge">${p.tag}</span><div class="mock ${p.type}" style="--tone:${p.tone||'#222'}"></div></div><div class="product-info"><h3>${p.name}</h3><p>${p.desc}</p><div class="product-bottom"><b>$${p.price.toFixed(2)}</b><button class="add" data-id="${p.id}">Add +</button></div></div></article>`}
-function render(list=products){$("#productGrid").innerHTML=list.map(productHTML).join("");document.querySelectorAll(".add").forEach(b=>b.onclick=()=>add(+b.dataset.id))}
+function render(list=products){
+ const grid=$("#productGrid");
+ if(!grid) return;
+ grid.innerHTML=list.length?list.map(productHTML).join(""):`<div class="no-results"><b>No products found.</b><br><small>Try another product, device or accessory type.</small></div>`;
+ document.querySelectorAll(".add").forEach(b=>b.onclick=()=>add(+b.dataset.id))
+}
 function add(id){cart.push(products.find(p=>p.id===id));updateCart();toast("Added to bag")}
 function updateCart(){$("#cartCount").textContent=cart.length;$("#subtotal").textContent="$"+cart.reduce((a,p)=>a+p.price,0).toFixed(2);$("#cartItems").innerHTML=cart.length?cart.map((p,i)=>`<div class="cart-row"><div class="cart-thumb"></div><div><h4>${p.name}</h4><small>$${p.price.toFixed(2)}</small></div><button class="remove" data-i="${i}">×</button></div>`).join(""):`<p class="empty">Your bag is empty.</p>`;document.querySelectorAll(".remove").forEach(b=>b.onclick=()=>{cart.splice(+b.dataset.i,1);updateCart()})}
 function openCart(){ $("#cartDrawer").classList.add("open");$("#overlay").classList.add("show")}
@@ -24,3 +29,18 @@ $("#newsletterForm").onsubmit=e=>{e.preventDefault();toast("Thanks — you're on
 $("#checkoutBtn").onclick=()=>toast("V1 checkout demo — payment connection comes next.")
 function toast(msg){let t=document.querySelector(".toast");if(!t){t=document.createElement("div");t.className="toast";document.body.appendChild(t)}t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
 render();updateCart();
+function findProducts(q){
+ q=(q||"").toLowerCase().trim();
+ const list=!q?products:products.filter(p=>(p.name+" "+p.desc+" "+p.type+" "+p.device+" "+p.tag).toLowerCase().includes(q));
+ render(list);
+ const status=$("#finderStatus"), title=$("#productTitle");
+ if(status) status.textContent=q?`${list.length} product${list.length===1?"":"s"} found for “${q}”`:"Showing all products";
+ if(title) title.textContent=q?"Search results":"Best sellers";
+ if(q) document.querySelector("#cases").scrollIntoView({behavior:"smooth",block:"start"});
+}
+const finder=$("#finderInput");
+if(finder){
+ finder.addEventListener("input",e=>findProducts(e.target.value));
+ document.querySelectorAll("[data-query]").forEach(b=>b.addEventListener("click",()=>{finder.value=b.dataset.query;findProducts(b.dataset.query)}));
+ $("#finderClear").onclick=()=>{finder.value="";findProducts("");finder.focus()};
+}

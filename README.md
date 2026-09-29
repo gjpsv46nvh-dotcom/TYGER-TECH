@@ -1,26 +1,15 @@
-# TYGER TECH V1
+# TYGER TECH V2
 
-Vercel-ready static prototype for a phone & tech accessories dropshipping store.
+Vercel-ready phone & tech accessories storefront prototype.
 
-## Included
-- Responsive mobile-first storefront
-- Hero / brand direction
-- Categories
-- Demo product catalogue
-- Device filters
-- Product search
-- Working demo cart
-- Newsletter interaction
-- Shipping / returns / FAQ placeholders
-- No real payment or supplier API yet
+## V2 changes
+- Added a large Product Finder / search domain on the homepage
+- Search by product, device, accessory type and keywords
+- Quick search chips for cases, chargers, screen protection, Samsung, Watch and Audio
+- Search result count and empty-result state
+- More robust Best Sellers product rendering
+- Working demo cart and header search
+- Responsive mobile-first layout
 
-## Deploy to Vercel
-1. Unzip the folder.
-2. Upload `index.html`, `styles.css`, and `app.js` to a GitHub repository.
-3. Import the repository into Vercel.
-4. Framework preset: **Other** / static site.
-5. Deploy.
-
-## Important
-Product names, descriptions and prices are placeholders for layout/testing only. Replace them with approved supplier data before launch.
-Stripe/payment and supplier fulfilment should be connected only after supplier/product selection.
+Products, pricing and imagery remain placeholders until the real dropshipping supplier catalogue is connected.
+No live payment processing is enabled yet.
