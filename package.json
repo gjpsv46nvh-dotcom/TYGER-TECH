@@ -1,8 +1,5 @@
 {
-  "name": "tyger-tech-v3",
+  "name": "tygerme-v6",
   "private": true,
-  "version": "3.0.0",
-  "dependencies": {
-    "stripe": "^18.5.0"
-  }
+  "version": "6.0.0"
 }
