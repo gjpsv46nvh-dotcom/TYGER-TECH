@@ -1,0 +1,8 @@
+{
+  "cleanUrls": true,
+  "functions": {
+    "api/create-checkout-session.js": {
+      "maxDuration": 10
+    }
+  }
+}
