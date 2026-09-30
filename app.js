@@ -44,3 +44,19 @@ if(finder){
  document.querySelectorAll("[data-query]").forEach(b=>b.addEventListener("click",()=>{finder.value=b.dataset.query;findProducts(b.dataset.query)}));
  $("#finderClear").onclick=()=>{finder.value="";findProducts("");finder.focus()};
 }
+
+// TYGERME V7 interactive 3D-style case customiser
+(()=>{
+ const stage=document.querySelector('#viewerStage'), model=document.querySelector('#case3d'), design=document.querySelector('#customDesign'), phone=document.querySelector('#customPhone'), addBtn=document.querySelector('#customAdd');
+ if(!stage||!model)return; let y=-28,x=-8,drag=false,last=0,auto=true;
+ const draw=()=>model.style.transform=`rotateX(${x}deg) rotateY(${y}deg)`;
+ const start=e=>{drag=true;auto=false;last=(e.touches?e.touches[0].clientX:e.clientX)};
+ const move=e=>{if(!drag)return;e.preventDefault();let n=(e.touches?e.touches[0].clientX:e.clientX);y+=(n-last)*.65;last=n;draw()};
+ const end=()=>{drag=false;setTimeout(()=>auto=true,1600)};
+ stage.addEventListener('pointerdown',start);stage.addEventListener('pointermove',move);window.addEventListener('pointerup',end);
+ stage.addEventListener('touchstart',start,{passive:true});stage.addEventListener('touchmove',move,{passive:false});stage.addEventListener('touchend',end);
+ stage.addEventListener('dblclick',()=>{x=-8;y=-28;draw()});
+ design.onchange=()=>{model.className='case3d '+design.value};
+ addBtn.onclick=()=>{cart.push({id:'custom-'+Date.now(),name:`${design.options[design.selectedIndex].text} — ${phone.value}`,desc:'TYGERME custom case',price:49.95,type:'case',device:'custom'});updateCart();toast('Custom case added to bag')};
+ setInterval(()=>{if(auto){y+=.35;draw()}},30);
+})();
