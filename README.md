@@ -1,3 +1,2 @@
-TYGERME V11 REALISTIC TRUE 3D
-
-Realism-focused upgrade with detailed display, front cutouts, physical side controls, USB-C/speaker details, enhanced camera hardware, lighting and materials. Retains V10 case ranges and silicone colours.
+# TYGERME V13 — Product Realism
+Refined 3D phone/case preview with thinner silicone shell, cleaner camera assembly, smoother curves, improved materials, front/back/360 controls outside the render, and less technical customer-facing UI.
