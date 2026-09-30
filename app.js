@@ -45,18 +45,36 @@ if(finder){
  $("#finderClear").onclick=()=>{finder.value="";findProducts("");finder.focus()};
 }
 
-// TYGERME V7 interactive 3D-style case customiser
+// TYGERME V8 REALVIEW interactive configurator
 (()=>{
- const stage=document.querySelector('#viewerStage'), model=document.querySelector('#case3d'), design=document.querySelector('#customDesign'), phone=document.querySelector('#customPhone'), addBtn=document.querySelector('#customAdd');
- if(!stage||!model)return; let y=-28,x=-8,drag=false,last=0,auto=true;
- const draw=()=>model.style.transform=`rotateX(${x}deg) rotateY(${y}deg)`;
- const start=e=>{drag=true;auto=false;last=(e.touches?e.touches[0].clientX:e.clientX)};
- const move=e=>{if(!drag)return;e.preventDefault();let n=(e.touches?e.touches[0].clientX:e.clientX);y+=(n-last)*.65;last=n;draw()};
- const end=()=>{drag=false;setTimeout(()=>auto=true,1600)};
- stage.addEventListener('pointerdown',start);stage.addEventListener('pointermove',move);window.addEventListener('pointerup',end);
- stage.addEventListener('touchstart',start,{passive:true});stage.addEventListener('touchmove',move,{passive:false});stage.addEventListener('touchend',end);
- stage.addEventListener('dblclick',()=>{x=-8;y=-28;draw()});
- design.onchange=()=>{model.className='case3d '+design.value};
- addBtn.onclick=()=>{cart.push({id:'custom-'+Date.now(),name:`${design.options[design.selectedIndex].text} — ${phone.value}`,desc:'TYGERME custom case',price:49.95,type:'case',device:'custom'});updateCart();toast('Custom case added to bag')};
- setInterval(()=>{if(auto){y+=.35;draw()}},30);
+ const stage=$('#viewerStage'), model=$('#case3d'), design=$('#customDesign'), phone=$('#customPhone'), addBtn=$('#customAdd'), spec=$('#selectedSpec');
+ if(!stage||!model)return;
+ const catalog={
+  iphone:[
+   ['iPhone 18 Pro Max','pro',78.0,163.4],['iPhone 18 Pro','pro',71.9,149.6],
+   ['iPhone 17 Pro Max','pro',78.0,163.4],['iPhone 17 Pro','pro',71.9,150.0],['iPhone 17','dual',71.5,149.6],['iPhone 17e','dual',71.5,146.7],['iPhone Air','dual',74.7,156.2],
+   ['iPhone 16 Pro Max','pro',77.6,163.0],['iPhone 16 Pro','pro',71.5,149.6],['iPhone 16 Plus','dual',77.8,160.9],['iPhone 16','dual',71.6,147.6],['iPhone 16e','dual',71.5,146.7],
+   ['iPhone 15 Pro Max','pro',76.7,159.9],['iPhone 15 Pro','pro',70.6,146.6],['iPhone 15 Plus','dual',77.8,160.9],['iPhone 15','dual',71.6,147.6]
+  ],
+  samsung:[
+   ['Galaxy S26 Ultra','ultra',78.1,163.6],['Galaxy S26+','triple',75.8,158.4],['Galaxy S26','triple',71.7,149.6],
+   ['Galaxy S25 Ultra','ultra',77.6,162.8],['Galaxy S25+','triple',75.8,158.4],['Galaxy S25','triple',70.5,146.9],
+   ['Galaxy S24 Ultra','ultra',79.0,162.3],['Galaxy S24+','triple',75.9,158.5],['Galaxy S24','triple',70.6,147.0]
+  ]
+ };
+ let brand='iphone',finish='gloss',y=-28,x=-7,zoom=1,drag=false,lastX=0,lastY=0,auto=true;
+ const renderCamera=type=>{const c=$('#cameraIsland');c.innerHTML='<i class="lens l1"></i><i class="lens l2"></i><i class="lens l3"></i><i class="flash"></i><i class="sensor"></i>';model.classList.toggle('dual',type==='dual');model.classList.toggle('pro',type==='pro'||type==='ultra');};
+ const populate=()=>{phone.innerHTML=catalog[brand].map((m,i)=>`<option value="${i}">${m[0]}</option>`).join('');applyModel()};
+ const applyModel=()=>{const m=catalog[brand][+phone.value||0],ratio=m[2]/m[3]; model.classList.toggle('iphone',brand==='iphone');model.classList.toggle('samsung',brand==='samsung');renderCamera(m[1]); const mobile=innerWidth<=560, h=mobile?352:462; model.style.setProperty('--ph',h+'px');model.style.setProperty('--pw',Math.round(h*ratio)+'px');spec.textContent=`${m[0]} • ${m[1]==='dual'?'Dual camera':m[1]==='ultra'?'Ultra camera':'Pro camera'} • ${finish[0].toUpperCase()+finish.slice(1)}`;};
+ const draw=()=>model.style.transform=`rotateX(${x}deg) rotateY(${y}deg) scale(${zoom})`;
+ document.querySelectorAll('[data-brand]').forEach(b=>b.onclick=()=>{brand=b.dataset.brand;document.querySelectorAll('[data-brand]').forEach(x=>x.classList.toggle('active',x===b));populate()});
+ document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{finish=b.dataset.finish;document.querySelectorAll('[data-finish]').forEach(x=>x.classList.toggle('active',x===b));model.classList.toggle('matte',finish==='matte');applyModel()});
+ phone.onchange=applyModel;design.onchange=()=>{model.classList.remove('leopard','black','clear','stone');model.classList.add(design.value)};
+ const start=e=>{drag=true;auto=false;lastX=e.clientX;lastY=e.clientY;stage.setPointerCapture?.(e.pointerId)};
+ const move=e=>{if(!drag)return;y+=(e.clientX-lastX)*.55;x=Math.max(-28,Math.min(28,x-(e.clientY-lastY)*.25));lastX=e.clientX;lastY=e.clientY;draw()};
+ const end=()=>{drag=false;setTimeout(()=>auto=true,1800)}; stage.addEventListener('pointerdown',start);stage.addEventListener('pointermove',move);stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
+ stage.addEventListener('wheel',e=>{e.preventDefault();auto=false;zoom=Math.max(.78,Math.min(1.28,zoom-e.deltaY*.0008));draw();setTimeout(()=>auto=true,1500)},{passive:false});
+ let lastTap=0;stage.addEventListener('click',()=>{let n=Date.now();if(n-lastTap<320){x=-7;y=-28;zoom=1;draw()}lastTap=n});
+ addBtn.onclick=()=>{const m=catalog[brand][+phone.value||0];cart.push({id:'custom-'+Date.now(),name:`${design.options[design.selectedIndex].text} — ${m[0]}`,desc:`TYGERME ${finish} custom case`,price:49.95,type:'case',device:brand});updateCart();toast('Custom case added to bag')};
+ populate();draw();setInterval(()=>{if(auto){y+=.28;draw()}},30);
 })();

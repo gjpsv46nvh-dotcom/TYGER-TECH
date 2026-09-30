@@ -25,7 +25,7 @@
     </div>
   </header>
 
-  <main id="top"><div class="build-chip">TYGERME • V7 3D</div>
+  <main id="top"><div class="build-chip">TYGERME • V8 REALVIEW</div>
     <section class="hero">
       <div class="hero-copy">
         <div class="eyebrow">BUILT FOR YOUR EVERYDAY TECH</div>
@@ -47,25 +47,29 @@
     </section>
 
 
-    <section class="customiser" id="customiser">
+    <section class="customiser v8" id="customiser">
       <div class="custom-copy">
-        <div class="eyebrow">TYGERME 3D CASE STUDIO</div>
-        <h2>See your case. From every angle.</h2>
-        <p>Choose your phone and case finish, then drag the preview to spin it around. Built for touch on mobile.</p>
-        <label>Phone model<select id="customPhone"><option>iPhone 18 Pro Max</option><option>iPhone 18 Pro</option><option>iPhone 18</option><option>Samsung Galaxy S26 Ultra</option><option>Samsung Galaxy S26</option></select></label>
+        <div class="eyebrow">TYGERME REALVIEW™ CASE STUDIO</div>
+        <h2>See the case on your phone.</h2>
+        <p>Choose iPhone or Samsung, pick the exact model and finish, then rotate the product through 360°. The preview changes proportions and camera layout with your selection.</p>
+        <div class="brand-toggle" role="group" aria-label="Phone brand"><button class="active" data-brand="iphone">iPhone</button><button data-brand="samsung">Samsung</button></div>
+        <label>Phone model<select id="customPhone"></select></label>
         <label>Case design<select id="customDesign"><option value="leopard">Leopard Gold</option><option value="black">Midnight Black</option><option value="clear">Crystal Clear</option><option value="stone">Stone</option></select></label>
+        <div class="finish-row"><span>Finish</span><button class="finish active" data-finish="gloss">Gloss</button><button class="finish" data-finish="matte">Matte</button></div>
+        <div class="selected-spec" id="selectedSpec">iPhone 18 Pro Max • Pro camera • Gloss</div>
         <div class="custom-price"><span>Custom TYGERME Case</span><b>$49.95</b></div>
         <button class="btn primary" id="customAdd">Add this case to bag</button>
       </div>
       <div class="viewer-wrap">
-        <div class="viewer-stage" id="viewerStage" aria-label="Interactive rotating phone case preview">
-          <div class="case3d leopard" id="case3d">
-            <div class="case-face case-back"><div class="case-camera"><i></i><i></i><i></i></div><div class="tyger-word">TYGERME</div></div>
-            <div class="case-face case-front"><div class="screen-pill"></div><div class="screen-logo">TYGERME</div></div>
-            <div class="case-edge edge-left"></div><div class="case-edge edge-right"></div>
+        <div class="viewer-stage" id="viewerStage" aria-label="Interactive rotating realistic phone case preview">
+          <div class="studio-light"></div><div class="floor-shadow"></div>
+          <div class="realphone leopard iphone pro" id="case3d">
+            <div class="phone-shell"><div class="back-panel"></div><div class="camera-island" id="cameraIsland"></div><div class="case-brand">TYGERME</div><div class="side-button volume"></div><div class="side-button power"></div><div class="port"></div></div>
+            <div class="phone-front"><div class="screen"><div class="island"></div><div class="screen-glow"></div><div class="screen-brand">TYGERME<small>REALVIEW</small></div></div></div>
           </div>
         </div>
-        <div class="viewer-help">↔ Drag to rotate &nbsp; • &nbsp; Double tap to reset</div>
+        <div class="viewer-help">↔ Drag to rotate &nbsp; • &nbsp; Pinch/scroll to zoom &nbsp; • &nbsp; Double tap to reset</div>
+        <div class="viewer-note">High-detail interactive preview. Final fit follows the case supplied for the selected device.</div>
       </div>
     </section>
 
@@ -138,7 +142,7 @@
   <footer>
     <div class="brand footer-brand"><span class="brand-mark">T</span><span><b>TYGERME</b></span></div>
     <div class="footer-links"><a href="#">Shipping</a><a href="#">Returns</a><a href="#">FAQ</a><a href="#">Contact</a><a href="#">Privacy</a><a href="#">Terms</a></div>
-    <small>© 2026 TYGERME. V7 3D LIVE BUILD — products and pricing are placeholders until supplier integration.</small>
+    <small>© 2026 TYGERME. V8 REALVIEW LIVE BUILD — products and pricing are placeholders until supplier integration.</small>
   </footer>
 
   <div class="overlay" id="overlay"></div>
