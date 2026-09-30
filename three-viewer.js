@@ -22,11 +22,11 @@ let brand='iphone', finish='gloss', productGroup=null, siliconeColour='black';
 const siliconeColours={black:['Black',0x17181b],white:['White',0xf1f0eb],stone:['Stone',0xb9b0a4],navy:['Navy',0x25344a],sage:['Sage Green',0x9aa88d],forest:['Forest Green',0x365844],pink:['Dusty Pink',0xd9a9ad],lilac:['Lilac',0xb9a7ca],sky:['Sky Blue',0x91b8cf],red:['Red',0xb9343c]};
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(34,1,.1,100);
-camera.position.set(11,3,22);
+camera.position.set(9.5,2.2,20);
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0x000000,0); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.18;
-const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.06; controls.enablePan=false; controls.minDistance=14; controls.maxDistance=32; controls.autoRotate=true; controls.autoRotateSpeed=1.35; controls.target.set(0,0,0);
+const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.06; controls.enablePan=false; controls.minDistance=12; controls.maxDistance=29; controls.autoRotate=true; controls.autoRotateSpeed=1.35; controls.target.set(0,0,0);
 controls.addEventListener('start',()=>controls.autoRotate=false); controls.addEventListener('end',()=>setTimeout(()=>controls.autoRotate=true,1800));
 scene.add(new THREE.HemisphereLight(0xeaf3ff,0x17130f,2.2));
 const key=new THREE.DirectionalLight(0xffffff,4.2); key.position.set(7,10,12);key.castShadow=true;scene.add(key);
@@ -35,7 +35,7 @@ const warm=new THREE.PointLight(0xffd39b,2.2,40);warm.position.set(5,-5,-8);scen
 const floor=new THREE.Mesh(new THREE.CircleGeometry(7,64),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.2,depthWrite:false}));floor.scale.y=.24;floor.rotation.x=-Math.PI/2;floor.position.y=-9.3;scene.add(floor);
 
 function roundedShape(w,h,r){const x=-w/2,y=-h/2,s=new THREE.Shape();s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s}
-function roundedBox(w,h,d,r,mat){const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.08,bevelThickness:.08,curveSegments:12});g.center();return new THREE.Mesh(g,mat)}
+function roundedBox(w,h,d,r,mat){const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSegments:10,steps:1,bevelSize:.16,bevelThickness:.14,curveSegments:28});g.center();return new THREE.Mesh(g,mat)}
 function leopardTexture(){const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');x.fillStyle='#b88a55';x.fillRect(0,0,512,512);for(let i=0;i<55;i++){const px=(i*137)%512,py=(i*83)%512,rx=16+(i%4)*5,ry=22+(i%3)*5;x.save();x.translate(px,py);x.rotate((i%7)*.31);x.fillStyle='#5a3a20';x.beginPath();x.ellipse(0,0,rx,ry,0,0,Math.PI*2);x.fill();x.fillStyle='#15110e';x.beginPath();x.ellipse(0,0,rx*.52,ry*.55,0,0,Math.PI*2);x.fill();x.restore()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
 const leopard=leopardTexture();
 function caseMaterial(){
@@ -45,14 +45,14 @@ function caseMaterial(){
  if(range==='tough')return new THREE.MeshPhysicalMaterial({color:0x1b1d21,roughness:.5,metalness:0,clearcoat:.08});
  const d=designSel.value;let color=d==='black'?0x111216:d==='stone'?0xc9c1b5:0xffffff;return new THREE.MeshPhysicalMaterial({color,map:d==='leopard'?leopard:null,roughness:finish==='matte'?.62:.18,metalness:.03,clearcoat:finish==='matte'?.08:1,clearcoatRoughness:.08})
 }
-function addLens(g,x,y,z,r=.53){const outer=new THREE.Mesh(new THREE.CylinderGeometry(r,r,.24,40),new THREE.MeshPhysicalMaterial({color:0x333840,metalness:.8,roughness:.2}));outer.rotation.x=Math.PI/2;outer.position.set(x,y,z);g.add(outer);const glass=new THREE.Mesh(new THREE.CylinderGeometry(r*.73,r*.73,.27,40),new THREE.MeshPhysicalMaterial({color:0x07111d,metalness:.35,roughness:.05,clearcoat:1}));glass.rotation.x=Math.PI/2;glass.position.set(x,y,z-.05);g.add(glass);const glint=new THREE.Mesh(new THREE.SphereGeometry(r*.15,16,8),new THREE.MeshBasicMaterial({color:0x8fb8d9,transparent:true,opacity:.7}));glint.position.set(x-.13,y+.14,z-.2);g.add(glint)}
+function addLens(g,x,y,z,r=.53){const outer=new THREE.Mesh(new THREE.CylinderGeometry(r,r,.18,64),new THREE.MeshPhysicalMaterial({color:0x333840,metalness:.8,roughness:.2}));outer.rotation.x=Math.PI/2;outer.position.set(x,y,z);g.add(outer);const glass=new THREE.Mesh(new THREE.CylinderGeometry(r*.73,r*.73,.21,64),new THREE.MeshPhysicalMaterial({color:0x07111d,metalness:.35,roughness:.05,clearcoat:1}));glass.rotation.x=Math.PI/2;glass.position.set(x,y,z-.05);g.add(glass);const glint=new THREE.Mesh(new THREE.SphereGeometry(r*.15,16,8),new THREE.MeshBasicMaterial({color:0x8fb8d9,transparent:true,opacity:.7}));glint.position.set(x-.13,y+.14,z-.2);g.add(glint)}
 function build(){
  if(productGroup){scene.remove(productGroup);productGroup.traverse(o=>{if(o.geometry)o.geometry.dispose()})} productGroup=new THREE.Group();scene.add(productGroup);
- const m=catalog[brand][+phoneSel.value||0], W=m[2]/10,H=m[3]/10,D=m[4]/10, R=brand==='samsung'&&m[1]==='ultra'?.55:1.0;
- const frameMat=new THREE.MeshPhysicalMaterial({color:brand==='iphone'?0x70747a:0x55595f,metalness:.82,roughness:.2,clearcoat:.7});
+ const m=catalog[brand][+phoneSel.value||0], W=m[2]/10,H=m[3]/10,D=m[4]/10, R=brand==='samsung'&&m[1]==='ultra'?.72:1.22;
+ const frameMat=new THREE.MeshPhysicalMaterial({color:brand==='iphone'?0x7d8187:0x62676d,metalness:.9,roughness:.16,clearcoat:1,clearcoatRoughness:.12});
  const body=roundedBox(W,H,D,R,frameMat);productGroup.add(body);
  const screenMat=new THREE.MeshPhysicalMaterial({color:0x05080d,roughness:.04,metalness:.1,clearcoat:1});
- const screen=roundedBox(W-.30,H-.30,.07,Math.max(.4,R-.15),screenMat);screen.position.z=D/2+.08;productGroup.add(screen);
+ const screen=roundedBox(W-.24,H-.24,.055,Math.max(.5,R-.12),screenMat);screen.position.z=D/2+.08;productGroup.add(screen);
  const wallpaper=document.createElement('canvas');wallpaper.width=512;wallpaper.height=1024;const wx=wallpaper.getContext('2d');const grad=wx.createLinearGradient(0,0,512,1024);grad.addColorStop(0,'#152339');grad.addColorStop(.45,'#49365e');grad.addColorStop(1,'#9a5e42');wx.fillStyle=grad;wx.fillRect(0,0,512,1024);wx.fillStyle='rgba(255,255,255,.13)';wx.beginPath();wx.arc(390,270,210,0,Math.PI*2);wx.fill();const wt=new THREE.CanvasTexture(wallpaper);wt.colorSpace=THREE.SRGBColorSpace;const display=new THREE.Mesh(new THREE.PlaneGeometry(W-.48,H-.48),new THREE.MeshBasicMaterial({map:wt}));display.position.z=D/2+.125;productGroup.add(display);
  // realistic front cutout: Dynamic Island on iPhone, punch-hole on Galaxy
  if(brand==='iphone' && !m[0].includes('16e') && !m[0].includes('17e')){const island=new THREE.Mesh(new THREE.CapsuleGeometry(.20,.72,8,20),new THREE.MeshPhysicalMaterial({color:0x010101,roughness:.18,clearcoat:1}));island.rotation.z=Math.PI/2;island.position.set(0,H/2-.72,D/2+.17);productGroup.add(island);}else{const hole=new THREE.Mesh(new THREE.CircleGeometry(.12,24),new THREE.MeshBasicMaterial({color:0x010101}));hole.position.set(0,H/2-.55,D/2+.18);productGroup.add(hole);}
@@ -65,18 +65,18 @@ function build(){
  for(let i=-3;i<=3;i++){if(i===0)continue;const sp=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.12,10),new THREE.MeshBasicMaterial({color:0x111317}));sp.rotation.z=Math.PI/2;sp.position.set(i*.16,-H/2-.06,.05);productGroup.add(sp)}
  // case: real back plate + four raised rails, leaving front glass visible
  const cm=caseMaterial(),cw=W+.42,ch=H+.42,caseD=.34;
- const back=roundedBox(cw,ch,caseD,R+.16,cm);back.position.z=-D/2-.23;productGroup.add(back);
+ const back=roundedBox(cw,ch,.24,R+.24,cm);back.position.z=-D/2-.23;productGroup.add(back);
  const railMat=cm.clone(); if(rangeSel.value==='clear')railMat.opacity=.48;
- const sideDepth=D+.65;
- const left=new THREE.Mesh(new THREE.BoxGeometry(.30,ch-1.0,sideDepth),railMat);left.position.set(-cw/2+.13,0,0);productGroup.add(left);
+ const sideDepth=D+.46;
+ const left=new THREE.Mesh(new THREE.BoxGeometry(.22,ch-1.0,sideDepth),railMat);left.position.set(-cw/2+.13,0,0);productGroup.add(left);
  const right=left.clone();right.position.x=cw/2-.13;productGroup.add(right);
- const top=new THREE.Mesh(new THREE.BoxGeometry(cw-1.0,.30,sideDepth),railMat);top.position.set(0,ch/2-.13,0);productGroup.add(top);
+ const top=new THREE.Mesh(new THREE.BoxGeometry(cw-1.0,.22,sideDepth),railMat);top.position.set(0,ch/2-.13,0);productGroup.add(top);
  const bottom=top.clone();bottom.position.y=-ch/2+.13;productGroup.add(bottom);
  // front lip, clearly visible from front
  const lipMat=railMat.clone();const lipZ=D/2+.13;
  [left,right,top,bottom].forEach(()=>{});
- const fl=new THREE.Mesh(new THREE.BoxGeometry(.18,ch-.7,.18),lipMat);fl.position.set(-cw/2+.10,0,lipZ);productGroup.add(fl);const fr=fl.clone();fr.position.x=cw/2-.10;productGroup.add(fr);
- const ft=new THREE.Mesh(new THREE.BoxGeometry(cw-.7,.18,.18),lipMat);ft.position.set(0,ch/2-.10,lipZ);productGroup.add(ft);const fb=ft.clone();fb.position.y=-ch/2+.10;productGroup.add(fb);
+ const fl=new THREE.Mesh(new THREE.BoxGeometry(.14,ch-.7,.14),lipMat);fl.position.set(-cw/2+.10,0,lipZ);productGroup.add(fl);const fr=fl.clone();fr.position.x=cw/2-.10;productGroup.add(fr);
+ const ft=new THREE.Mesh(new THREE.BoxGeometry(cw-.7,.14,.14),lipMat);ft.position.set(0,ch/2-.10,lipZ);productGroup.add(ft);const fb=ft.clone();fb.position.y=-ch/2+.10;productGroup.add(fb);
  // camera geometry on back
  const z=-D/2-.48; const cam=new THREE.Group();productGroup.add(cam);
  if(brand==='iphone'){
@@ -100,7 +100,12 @@ function syncRange(){document.querySelector('#customPrice').textContent=rangeSel
 rangeSel.onchange=syncRange;
 Object.entries(siliconeColours).forEach(([key,[name,color]])=>{const b=document.createElement('button');b.type='button';b.className='colour-swatch'+(key===siliconeColour?' active':'');b.style.background='#'+color.toString(16).padStart(6,'0');b.title=name;b.setAttribute('aria-label',name);b.onclick=()=>{siliconeColour=key;document.querySelectorAll('.colour-swatch').forEach(x=>x.classList.toggle('active',x===b));colourName.textContent=name;build()};swatches.appendChild(b)});
 addBtn.onclick=()=>{const m=catalog[brand][+phoneSel.value||0];const rn=rangeSel.options[rangeSel.selectedIndex].text;const variant=rangeSel.value==='silicone'?siliconeColours[siliconeColour][0]:rangeSel.value==='printed'?designSel.options[designSel.selectedIndex].text:rn;cart.push({id:'custom-'+Date.now(),name:`${rn} — ${variant} — ${m[0]}`,desc:`TYGERME ${rangeSel.value==='silicone'?'matte no-logo':finish} true 3D case`,price:rangeSel.value==='silicone'?34.95:49.95,type:'case',device:brand});updateCart();toast('Custom case added to bag')};
-$('#viewReset').onclick=()=>{camera.position.set(11,3,22);controls.target.set(0,0,0);controls.autoRotate=true;controls.update()};
+$('#viewReset').onclick=()=>{camera.position.set(9.5,2.2,20);controls.target.set(0,0,0);controls.autoRotate=true;controls.update()};
+function smoothView(pos, auto=false){camera.position.set(...pos);controls.target.set(0,0,0);controls.autoRotate=auto;controls.update()}
+const vf=$('#viewFront'),vb=$('#viewBack'),v360=$('#view360');
+if(vf)vf.onclick=()=>smoothView([0,0,20],false);
+if(vb)vb.onclick=()=>smoothView([0,0,-20],false);
+if(v360)v360.onclick=()=>smoothView([9.5,2.2,20],true);
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 new ResizeObserver(resize).observe(stage);resize();populate();
 renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera)});
