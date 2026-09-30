@@ -24,12 +24,12 @@ const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(34,1,.1,100);
 camera.position.set(11,3,22);
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0x000000,0);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0x000000,0); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.18;
 const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.06; controls.enablePan=false; controls.minDistance=14; controls.maxDistance=32; controls.autoRotate=true; controls.autoRotateSpeed=1.35; controls.target.set(0,0,0);
 controls.addEventListener('start',()=>controls.autoRotate=false); controls.addEventListener('end',()=>setTimeout(()=>controls.autoRotate=true,1800));
 scene.add(new THREE.HemisphereLight(0xeaf3ff,0x17130f,2.2));
-const key=new THREE.DirectionalLight(0xffffff,4.2); key.position.set(7,10,12);scene.add(key);
+const key=new THREE.DirectionalLight(0xffffff,4.2); key.position.set(7,10,12);key.castShadow=true;scene.add(key);
 const rim=new THREE.DirectionalLight(0x9fc4ff,2.4); rim.position.set(-9,4,-10);scene.add(rim);
 const warm=new THREE.PointLight(0xffd39b,2.2,40);warm.position.set(5,-5,-8);scene.add(warm);
 const floor=new THREE.Mesh(new THREE.CircleGeometry(7,64),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.2,depthWrite:false}));floor.scale.y=.24;floor.rotation.x=-Math.PI/2;floor.position.y=-9.3;scene.add(floor);
@@ -47,13 +47,22 @@ function caseMaterial(){
 }
 function addLens(g,x,y,z,r=.53){const outer=new THREE.Mesh(new THREE.CylinderGeometry(r,r,.24,40),new THREE.MeshPhysicalMaterial({color:0x333840,metalness:.8,roughness:.2}));outer.rotation.x=Math.PI/2;outer.position.set(x,y,z);g.add(outer);const glass=new THREE.Mesh(new THREE.CylinderGeometry(r*.73,r*.73,.27,40),new THREE.MeshPhysicalMaterial({color:0x07111d,metalness:.35,roughness:.05,clearcoat:1}));glass.rotation.x=Math.PI/2;glass.position.set(x,y,z-.05);g.add(glass);const glint=new THREE.Mesh(new THREE.SphereGeometry(r*.15,16,8),new THREE.MeshBasicMaterial({color:0x8fb8d9,transparent:true,opacity:.7}));glint.position.set(x-.13,y+.14,z-.2);g.add(glint)}
 function build(){
- if(productGroup)scene.remove(productGroup); productGroup=new THREE.Group();scene.add(productGroup);
+ if(productGroup){scene.remove(productGroup);productGroup.traverse(o=>{if(o.geometry)o.geometry.dispose()})} productGroup=new THREE.Group();scene.add(productGroup);
  const m=catalog[brand][+phoneSel.value||0], W=m[2]/10,H=m[3]/10,D=m[4]/10, R=brand==='samsung'&&m[1]==='ultra'?.55:1.0;
  const frameMat=new THREE.MeshPhysicalMaterial({color:brand==='iphone'?0x70747a:0x55595f,metalness:.82,roughness:.2,clearcoat:.7});
  const body=roundedBox(W,H,D,R,frameMat);productGroup.add(body);
  const screenMat=new THREE.MeshPhysicalMaterial({color:0x05080d,roughness:.04,metalness:.1,clearcoat:1});
  const screen=roundedBox(W-.30,H-.30,.07,Math.max(.4,R-.15),screenMat);screen.position.z=D/2+.08;productGroup.add(screen);
- const glow=new THREE.Mesh(new THREE.PlaneGeometry(W*.68,H*.52),new THREE.MeshBasicMaterial({color:0x805d35,transparent:true,opacity:.18}));glow.position.set(0,-1,D/2+.13);productGroup.add(glow);
+ const wallpaper=document.createElement('canvas');wallpaper.width=512;wallpaper.height=1024;const wx=wallpaper.getContext('2d');const grad=wx.createLinearGradient(0,0,512,1024);grad.addColorStop(0,'#152339');grad.addColorStop(.45,'#49365e');grad.addColorStop(1,'#9a5e42');wx.fillStyle=grad;wx.fillRect(0,0,512,1024);wx.fillStyle='rgba(255,255,255,.13)';wx.beginPath();wx.arc(390,270,210,0,Math.PI*2);wx.fill();const wt=new THREE.CanvasTexture(wallpaper);wt.colorSpace=THREE.SRGBColorSpace;const display=new THREE.Mesh(new THREE.PlaneGeometry(W-.48,H-.48),new THREE.MeshBasicMaterial({map:wt}));display.position.z=D/2+.125;productGroup.add(display);
+ // realistic front cutout: Dynamic Island on iPhone, punch-hole on Galaxy
+ if(brand==='iphone' && !m[0].includes('16e') && !m[0].includes('17e')){const island=new THREE.Mesh(new THREE.CapsuleGeometry(.20,.72,8,20),new THREE.MeshPhysicalMaterial({color:0x010101,roughness:.18,clearcoat:1}));island.rotation.z=Math.PI/2;island.position.set(0,H/2-.72,D/2+.17);productGroup.add(island);}else{const hole=new THREE.Mesh(new THREE.CircleGeometry(.12,24),new THREE.MeshBasicMaterial({color:0x010101}));hole.position.set(0,H/2-.55,D/2+.18);productGroup.add(hole);}
+ // side controls and lower hardware details
+ const metal=new THREE.MeshPhysicalMaterial({color:0x858a91,metalness:.92,roughness:.17,clearcoat:.8});
+ function sideButton(x,y,z,w,h,d){const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),metal);b.position.set(x,y,z);productGroup.add(b)}
+ sideButton(-W/2-.06,H*.18,0,.10,1.15,.28); sideButton(W/2+.06,H*.17,0,.10,1.55,.28);
+ if(brand==='iphone'){sideButton(-W/2-.06,H*.31,0,.10,.48,.28); if(m[0].includes('16')||m[0].includes('17')||m[0].includes('18'))sideButton(W/2+.07,-H*.18,0,.11,.82,.30);}
+ const port=new THREE.Mesh(new THREE.BoxGeometry(.78,.10,.12),new THREE.MeshBasicMaterial({color:0x08090b}));port.position.set(0,-H/2-.055,.05);productGroup.add(port);
+ for(let i=-3;i<=3;i++){if(i===0)continue;const sp=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.12,10),new THREE.MeshBasicMaterial({color:0x111317}));sp.rotation.z=Math.PI/2;sp.position.set(i*.16,-H/2-.06,.05);productGroup.add(sp)}
  // case: real back plate + four raised rails, leaving front glass visible
  const cm=caseMaterial(),cw=W+.42,ch=H+.42,caseD=.34;
  const back=roundedBox(cw,ch,caseD,R+.16,cm);back.position.z=-D/2-.23;productGroup.add(back);
@@ -73,7 +82,7 @@ function build(){
  if(brand==='iphone'){
    const bump=roundedBox(m[1]==='dual'?2.7:3.65,m[1]==='dual'?2.7:3.65,.24,.65,cm.clone());bump.position.set(-W/2+(m[1]==='dual'?1.65:2.05),H/2-(m[1]==='dual'?1.65:2.05),z+.10);cam.add(bump);
    if(m[1]==='dual'){addLens(cam,-W/2+1.25,H/2-1.18,z-.15,.56);addLens(cam,-W/2+2.05,H/2-2.05,z-.15,.56)}
-   else {addLens(cam,-W/2+1.25,H/2-1.20,z-.15,.57);addLens(cam,-W/2+2.35,H/2-1.85,z-.15,.57);addLens(cam,-W/2+1.30,H/2-2.60,z-.15,.57)}
+   else {addLens(cam,-W/2+1.25,H/2-1.20,z-.15,.57);addLens(cam,-W/2+2.35,H/2-1.85,z-.15,.57);addLens(cam,-W/2+1.30,H/2-2.60,z-.15,.57);const flash=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.12,28),new THREE.MeshPhysicalMaterial({color:0xfff1c7,emissive:0x6b5528,roughness:.18}));flash.rotation.x=Math.PI/2;flash.position.set(-W/2+2.55,H/2-2.85,z-.18);cam.add(flash);const lidar=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.12,24),new THREE.MeshPhysicalMaterial({color:0x151a20,roughness:.12,clearcoat:1}));lidar.rotation.x=Math.PI/2;lidar.position.set(-W/2+2.58,H/2-2.45,z-.18);cam.add(lidar)}
  } else {
    addLens(cam,-W/2+1.12,H/2-1.25,z-.18,.53);addLens(cam,-W/2+1.12,H/2-2.55,z-.18,.53);addLens(cam,-W/2+1.12,H/2-3.85,z-.18,.53);
    if(m[1]==='ultra')addLens(cam,-W/2+2.28,H/2-2.05,z-.18,.34);
