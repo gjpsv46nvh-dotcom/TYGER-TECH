@@ -4,7 +4,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/exampl
 const $=s=>document.querySelector(s);
 const canvas=$('#tyger3dCanvas');
 if(canvas){
-const stage=$('#viewerStage'), phoneSel=$('#customPhone'), designSel=$('#customDesign'), spec=$('#selectedSpec'), addBtn=$('#customAdd');
+const stage=$('#viewerStage'), phoneSel=$('#customPhone'), designSel=$('#customDesign'), rangeSel=$('#caseRange'), designLabel=$('#designLabel'), siliconePicker=$('#siliconePicker'), swatches=$('#colourSwatches'), colourName=$('#siliconeColourName'), spec=$('#selectedSpec'), addBtn=$('#customAdd');
 const catalog={
  iphone:[
   ['iPhone 18 Pro Max','pro',78.0,163.4,8.75],['iPhone 18 Pro','pro',71.9,149.6,8.75],
@@ -18,7 +18,8 @@ const catalog={
   ['Galaxy S24 Ultra','ultra',79.0,162.3,8.6],['Galaxy S24+','triple',75.9,158.5,7.7],['Galaxy S24','triple',70.6,147.0,7.6]
  ]
 };
-let brand='iphone', finish='gloss', productGroup=null;
+let brand='iphone', finish='gloss', productGroup=null, siliconeColour='black';
+const siliconeColours={black:['Black',0x17181b],white:['White',0xf1f0eb],stone:['Stone',0xb9b0a4],navy:['Navy',0x25344a],sage:['Sage Green',0x9aa88d],forest:['Forest Green',0x365844],pink:['Dusty Pink',0xd9a9ad],lilac:['Lilac',0xb9a7ca],sky:['Sky Blue',0x91b8cf],red:['Red',0xb9343c]};
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(34,1,.1,100);
 camera.position.set(11,3,22);
@@ -37,7 +38,13 @@ function roundedShape(w,h,r){const x=-w/2,y=-h/2,s=new THREE.Shape();s.moveTo(x+
 function roundedBox(w,h,d,r,mat){const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.08,bevelThickness:.08,curveSegments:12});g.center();return new THREE.Mesh(g,mat)}
 function leopardTexture(){const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');x.fillStyle='#b88a55';x.fillRect(0,0,512,512);for(let i=0;i<55;i++){const px=(i*137)%512,py=(i*83)%512,rx=16+(i%4)*5,ry=22+(i%3)*5;x.save();x.translate(px,py);x.rotate((i%7)*.31);x.fillStyle='#5a3a20';x.beginPath();x.ellipse(0,0,rx,ry,0,0,Math.PI*2);x.fill();x.fillStyle='#15110e';x.beginPath();x.ellipse(0,0,rx*.52,ry*.55,0,0,Math.PI*2);x.fill();x.restore()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
 const leopard=leopardTexture();
-function caseMaterial(){const d=designSel.value;if(d==='clear')return new THREE.MeshPhysicalMaterial({color:0xdde8ee,transparent:true,opacity:.30,roughness:.08,metalness:0,transmission:.42,thickness:.5,clearcoat:1,side:THREE.DoubleSide});let color=d==='black'?0x111216:d==='stone'?0xc9c1b5:0xffffff;return new THREE.MeshPhysicalMaterial({color,map:d==='leopard'?leopard:null,roughness:finish==='matte'?.62:.18,metalness:.03,clearcoat:finish==='matte'?.08:1,clearcoatRoughness:.08})}
+function caseMaterial(){
+ const range=rangeSel.value;
+ if(range==='silicone'){const color=siliconeColours[siliconeColour][1];return new THREE.MeshPhysicalMaterial({color,roughness:.82,metalness:0,clearcoat:.02,sheen:1,sheenRoughness:.85});}
+ if(range==='clear')return new THREE.MeshPhysicalMaterial({color:0xdde8ee,transparent:true,opacity:.28,roughness:.08,metalness:0,transmission:.48,thickness:.55,clearcoat:1,side:THREE.DoubleSide});
+ if(range==='tough')return new THREE.MeshPhysicalMaterial({color:0x1b1d21,roughness:.5,metalness:0,clearcoat:.08});
+ const d=designSel.value;let color=d==='black'?0x111216:d==='stone'?0xc9c1b5:0xffffff;return new THREE.MeshPhysicalMaterial({color,map:d==='leopard'?leopard:null,roughness:finish==='matte'?.62:.18,metalness:.03,clearcoat:finish==='matte'?.08:1,clearcoatRoughness:.08})
+}
 function addLens(g,x,y,z,r=.53){const outer=new THREE.Mesh(new THREE.CylinderGeometry(r,r,.24,40),new THREE.MeshPhysicalMaterial({color:0x333840,metalness:.8,roughness:.2}));outer.rotation.x=Math.PI/2;outer.position.set(x,y,z);g.add(outer);const glass=new THREE.Mesh(new THREE.CylinderGeometry(r*.73,r*.73,.27,40),new THREE.MeshPhysicalMaterial({color:0x07111d,metalness:.35,roughness:.05,clearcoat:1}));glass.rotation.x=Math.PI/2;glass.position.set(x,y,z-.05);g.add(glass);const glint=new THREE.Mesh(new THREE.SphereGeometry(r*.15,16,8),new THREE.MeshBasicMaterial({color:0x8fb8d9,transparent:true,opacity:.7}));glint.position.set(x-.13,y+.14,z-.2);g.add(glint)}
 function build(){
  if(productGroup)scene.remove(productGroup); productGroup=new THREE.Group();scene.add(productGroup);
@@ -50,7 +57,7 @@ function build(){
  // case: real back plate + four raised rails, leaving front glass visible
  const cm=caseMaterial(),cw=W+.42,ch=H+.42,caseD=.34;
  const back=roundedBox(cw,ch,caseD,R+.16,cm);back.position.z=-D/2-.23;productGroup.add(back);
- const railMat=cm.clone(); if(designSel.value==='clear')railMat.opacity=.48;
+ const railMat=cm.clone(); if(rangeSel.value==='clear')railMat.opacity=.48;
  const sideDepth=D+.65;
  const left=new THREE.Mesh(new THREE.BoxGeometry(.30,ch-1.0,sideDepth),railMat);left.position.set(-cw/2+.13,0,0);productGroup.add(left);
  const right=left.clone();right.position.x=cw/2-.13;productGroup.add(right);
@@ -72,15 +79,18 @@ function build(){
    if(m[1]==='ultra')addLens(cam,-W/2+2.28,H/2-2.05,z-.18,.34);
  }
  // logo on back as canvas sprite-like plane
- const lc=document.createElement('canvas');lc.width=512;lc.height=100;const lx=lc.getContext('2d');lx.font='900 58px Arial';lx.textAlign='center';lx.fillStyle=designSel.value==='black'?'#d7b36a':'#d0a354';lx.fillText('TYGERME',256,67);const lt=new THREE.CanvasTexture(lc);lt.colorSpace=THREE.SRGBColorSpace;const logo=new THREE.Mesh(new THREE.PlaneGeometry(4.4,.86),new THREE.MeshBasicMaterial({map:lt,transparent:true,side:THREE.DoubleSide}));logo.position.set(0,-H/2+2.0,-D/2-.43);logo.rotation.y=Math.PI;productGroup.add(logo);
+ if(rangeSel.value==='printed'){const lc=document.createElement('canvas');lc.width=512;lc.height=100;const lx=lc.getContext('2d');lx.font='900 58px Arial';lx.textAlign='center';lx.fillStyle=designSel.value==='black'?'#d7b36a':'#d0a354';lx.fillText('TYGERME',256,67);const lt=new THREE.CanvasTexture(lc);lt.colorSpace=THREE.SRGBColorSpace;const logo=new THREE.Mesh(new THREE.PlaneGeometry(4.4,.86),new THREE.MeshBasicMaterial({map:lt,transparent:true,side:THREE.DoubleSide}));logo.position.set(0,-H/2+2.0,-D/2-.43);logo.rotation.y=Math.PI;productGroup.add(logo);}
  productGroup.rotation.x=-.08;
- spec.textContent=`${m[0]} • ${m[1]==='dual'?'Dual camera':m[1]==='ultra'?'Ultra camera':m[1]==='triple'?'Triple camera':'Pro camera'} • ${finish[0].toUpperCase()+finish.slice(1)} • True 3D`;
+ const rangeName=rangeSel.options[rangeSel.selectedIndex].text;const detail=rangeSel.value==='silicone'?siliconeColours[siliconeColour][0]+' • Matte • No logo':rangeSel.value==='printed'?(designSel.options[designSel.selectedIndex].text+' • '+finish):rangeName;spec.textContent=`${m[0]} • ${rangeName} • ${detail} • True 3D`;
 }
 function populate(){phoneSel.innerHTML=catalog[brand].map((m,i)=>`<option value="${i}">${m[0]}</option>`).join('');build()}
 document.querySelectorAll('[data-brand]').forEach(b=>b.onclick=()=>{brand=b.dataset.brand;document.querySelectorAll('[data-brand]').forEach(x=>x.classList.toggle('active',x===b));populate()});
 document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{finish=b.dataset.finish;document.querySelectorAll('[data-finish]').forEach(x=>x.classList.toggle('active',x===b));build()});
 phoneSel.onchange=build;designSel.onchange=build;
-addBtn.onclick=()=>{const m=catalog[brand][+phoneSel.value||0];cart.push({id:'custom-'+Date.now(),name:`${designSel.options[designSel.selectedIndex].text} — ${m[0]}`,desc:`TYGERME ${finish} true 3D custom case`,price:49.95,type:'case',device:brand});updateCart();toast('Custom case added to bag')};
+function syncRange(){document.querySelector('#customPrice').textContent=rangeSel.value==='silicone'?'$34.95':'$49.95';const silicone=rangeSel.value==='silicone', printed=rangeSel.value==='printed';siliconePicker.hidden=!silicone;designLabel.hidden=!printed;document.querySelector('.finish-row').hidden=!printed;if(silicone)finish='matte';build()}
+rangeSel.onchange=syncRange;
+Object.entries(siliconeColours).forEach(([key,[name,color]])=>{const b=document.createElement('button');b.type='button';b.className='colour-swatch'+(key===siliconeColour?' active':'');b.style.background='#'+color.toString(16).padStart(6,'0');b.title=name;b.setAttribute('aria-label',name);b.onclick=()=>{siliconeColour=key;document.querySelectorAll('.colour-swatch').forEach(x=>x.classList.toggle('active',x===b));colourName.textContent=name;build()};swatches.appendChild(b)});
+addBtn.onclick=()=>{const m=catalog[brand][+phoneSel.value||0];const rn=rangeSel.options[rangeSel.selectedIndex].text;const variant=rangeSel.value==='silicone'?siliconeColours[siliconeColour][0]:rangeSel.value==='printed'?designSel.options[designSel.selectedIndex].text:rn;cart.push({id:'custom-'+Date.now(),name:`${rn} — ${variant} — ${m[0]}`,desc:`TYGERME ${rangeSel.value==='silicone'?'matte no-logo':finish} true 3D case`,price:rangeSel.value==='silicone'?34.95:49.95,type:'case',device:brand});updateCart();toast('Custom case added to bag')};
 $('#viewReset').onclick=()=>{camera.position.set(11,3,22);controls.target.set(0,0,0);controls.autoRotate=true;controls.update()};
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
 new ResizeObserver(resize).observe(stage);resize();populate();

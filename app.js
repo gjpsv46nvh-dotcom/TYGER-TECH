@@ -6,10 +6,12 @@ const products=[
 {id:5,name:"Samsung Armour Case",desc:"Grippy shock protection for Galaxy",price:32.95,tag:"POPULAR",type:"case",device:"samsung",tone:"#39404a"},
 {id:6,name:"Magnetic Car Mount",desc:"Secure magnetic mounting for the road",price:36.95,tag:"DRIVE",type:"charging",device:"all"},
 {id:7,name:"Watch Protective Bumper",desc:"Slim everyday Apple Watch protection",price:18.95,tag:"WATCH",type:"case",device:"watch",tone:"#727983"},
-{id:8,name:"Wireless Earbud Case",desc:"Clip-on protection for everyday carry",price:22.95,tag:"AUDIO",type:"case",device:"audio",tone:"#d2d5d8"}];
+{id:8,name:"Wireless Earbud Case",desc:"Clip-on protection for everyday carry",price:22.95,tag:"AUDIO",type:"case",device:"audio",tone:"#d2d5d8"},
+{id:9,name:"Silicone Case — Black",desc:"Soft-touch matte silicone • no logo • 10 colours",price:34.95,tag:"NEW RANGE",type:"silicone",device:"iphone",tone:"#17181b",range:"SILICONE"},
+{id:10,name:"Silicone Case — Sage",desc:"Soft-touch matte silicone • no logo • 10 colours",price:34.95,tag:"NEW RANGE",type:"silicone",device:"samsung",tone:"#9aa88d",range:"SILICONE"}];
 let cart=[];
 const $=s=>document.querySelector(s);
-function productHTML(p){return `<article class="product"><div class="product-image"><span class="badge">${p.tag}</span><div class="mock ${p.type}" style="--tone:${p.tone||'#222'}"></div></div><div class="product-info"><h3>${p.name}</h3><p>${p.desc}</p><div class="product-bottom"><b>$${p.price.toFixed(2)}</b><button class="add" data-id="${p.id}">Add +</button></div></div></article>`}
+function productHTML(p){return `<article class="product"><div class="product-image ${p.type==='silicone'?'silicone-preview':''}"><span class="badge">${p.tag}</span>${p.range?`<span class="range-pill">${p.range}</span>`:''}<div class="mock ${p.type}" style="--tone:${p.tone||'#222'}"></div></div><div class="product-info"><h3>${p.name}</h3><p>${p.desc}</p><div class="product-bottom"><b>$${p.price.toFixed(2)}</b><button class="add" data-id="${p.id}">Add +</button></div></div></article>`}
 function render(list=products){
  const grid=$("#productGrid");
  if(!grid) return;

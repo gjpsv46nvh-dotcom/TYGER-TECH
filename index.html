@@ -25,7 +25,7 @@
     </div>
   </header>
 
-  <main id="top"><div class="build-chip">TYGERME • V9 TRUE 3D</div>
+  <main id="top"><div class="build-chip">TYGERME • V10 CASE RANGES</div>
     <section class="hero">
       <div class="hero-copy">
         <div class="eyebrow">BUILT FOR YOUR EVERYDAY TECH</div>
@@ -54,10 +54,12 @@
         <p>Choose iPhone or Samsung, pick the exact model and finish, then rotate the product through 360°. The preview changes proportions and camera layout with your selection.</p>
         <div class="brand-toggle" role="group" aria-label="Phone brand"><button class="active" data-brand="iphone">iPhone</button><button data-brand="samsung">Samsung</button></div>
         <label>Phone model<select id="customPhone"></select></label>
-        <label>Case design<select id="customDesign"><option value="leopard">Leopard Gold</option><option value="black">Midnight Black</option><option value="clear">Crystal Clear</option><option value="stone">Stone</option></select></label>
+        <label>Case range<select id="caseRange"><option value="printed">TYGERME Printed</option><option value="silicone">Silicone — No Logo</option><option value="clear">Clear</option><option value="tough">Tough / Armour</option></select></label>
+        <label id="designLabel">Case design<select id="customDesign"><option value="leopard">Leopard Gold</option><option value="black">Midnight Black</option><option value="stone">Stone</option></select></label>
+        <div class="silicone-picker" id="siliconePicker" hidden><span>Silicone colour</span><div class="colour-swatches" id="colourSwatches"></div><b id="siliconeColourName">Black</b></div>
         <div class="finish-row"><span>Finish</span><button class="finish active" data-finish="gloss">Gloss</button><button class="finish" data-finish="matte">Matte</button></div>
         <div class="selected-spec" id="selectedSpec">iPhone 18 Pro Max • Pro camera • Gloss</div>
-        <div class="custom-price"><span>Custom TYGERME Case</span><b>$49.95</b></div>
+        <div class="custom-price"><span>TYGERME Case</span><b id="customPrice">$49.95</b></div>
         <button class="btn primary" id="customAdd">Add this case to bag</button>
       </div>
       <div class="viewer-wrap">
@@ -67,7 +69,7 @@
           <button class="view-reset" id="viewReset" type="button">Reset view</button>
         </div>
         <div class="viewer-help">↔ Drag to rotate &nbsp; • &nbsp; Pinch/scroll to zoom &nbsp; • &nbsp; Double tap to reset</div>
-        <div class="viewer-note">True WebGL 3D preview with front, back and edge geometry. Final production fit follows the supplier case for the selected device.</div>
+        <div class="viewer-note">True WebGL 3D preview with front, back and edge geometry. Silicone range is logo-free with a soft-touch matte finish. Final production fit follows the supplier case for the selected device.</div>
       </div>
     </section>
 
