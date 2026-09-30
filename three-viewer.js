@@ -1,0 +1,88 @@
+import * as THREE from 'three';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/controls/OrbitControls.js';
+
+const $=s=>document.querySelector(s);
+const canvas=$('#tyger3dCanvas');
+if(canvas){
+const stage=$('#viewerStage'), phoneSel=$('#customPhone'), designSel=$('#customDesign'), spec=$('#selectedSpec'), addBtn=$('#customAdd');
+const catalog={
+ iphone:[
+  ['iPhone 18 Pro Max','pro',78.0,163.4,8.75],['iPhone 18 Pro','pro',71.9,149.6,8.75],
+  ['iPhone 17 Pro Max','pro',78.0,163.4,8.75],['iPhone 17 Pro','pro',71.9,150.0,8.75],['iPhone 17','dual',71.5,149.6,8.0],['iPhone 17e','dual',71.5,146.7,8.0],['iPhone Air','dual',74.7,156.2,6.0],
+  ['iPhone 16 Pro Max','pro',77.6,163.0,8.25],['iPhone 16 Pro','pro',71.5,149.6,8.25],['iPhone 16 Plus','dual',77.8,160.9,7.8],['iPhone 16','dual',71.6,147.6,7.8],['iPhone 16e','dual',71.5,146.7,7.8],
+  ['iPhone 15 Pro Max','pro',76.7,159.9,8.25],['iPhone 15 Pro','pro',70.6,146.6,8.25],['iPhone 15 Plus','dual',77.8,160.9,7.8],['iPhone 15','dual',71.6,147.6,7.8]
+ ],
+ samsung:[
+  ['Galaxy S26 Ultra','ultra',78.1,163.6,7.9],['Galaxy S26+','triple',75.8,158.4,7.3],['Galaxy S26','triple',71.7,149.6,7.2],
+  ['Galaxy S25 Ultra','ultra',77.6,162.8,8.2],['Galaxy S25+','triple',75.8,158.4,7.3],['Galaxy S25','triple',70.5,146.9,7.2],
+  ['Galaxy S24 Ultra','ultra',79.0,162.3,8.6],['Galaxy S24+','triple',75.9,158.5,7.7],['Galaxy S24','triple',70.6,147.0,7.6]
+ ]
+};
+let brand='iphone', finish='gloss', productGroup=null;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(34,1,.1,100);
+camera.position.set(11,3,22);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0x000000,0);
+renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.18;
+const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=.06; controls.enablePan=false; controls.minDistance=14; controls.maxDistance=32; controls.autoRotate=true; controls.autoRotateSpeed=1.35; controls.target.set(0,0,0);
+controls.addEventListener('start',()=>controls.autoRotate=false); controls.addEventListener('end',()=>setTimeout(()=>controls.autoRotate=true,1800));
+scene.add(new THREE.HemisphereLight(0xeaf3ff,0x17130f,2.2));
+const key=new THREE.DirectionalLight(0xffffff,4.2); key.position.set(7,10,12);scene.add(key);
+const rim=new THREE.DirectionalLight(0x9fc4ff,2.4); rim.position.set(-9,4,-10);scene.add(rim);
+const warm=new THREE.PointLight(0xffd39b,2.2,40);warm.position.set(5,-5,-8);scene.add(warm);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(7,64),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.2,depthWrite:false}));floor.scale.y=.24;floor.rotation.x=-Math.PI/2;floor.position.y=-9.3;scene.add(floor);
+
+function roundedShape(w,h,r){const x=-w/2,y=-h/2,s=new THREE.Shape();s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s}
+function roundedBox(w,h,d,r,mat){const g=new THREE.ExtrudeGeometry(roundedShape(w,h,r),{depth:d,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.08,bevelThickness:.08,curveSegments:12});g.center();return new THREE.Mesh(g,mat)}
+function leopardTexture(){const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');x.fillStyle='#b88a55';x.fillRect(0,0,512,512);for(let i=0;i<55;i++){const px=(i*137)%512,py=(i*83)%512,rx=16+(i%4)*5,ry=22+(i%3)*5;x.save();x.translate(px,py);x.rotate((i%7)*.31);x.fillStyle='#5a3a20';x.beginPath();x.ellipse(0,0,rx,ry,0,0,Math.PI*2);x.fill();x.fillStyle='#15110e';x.beginPath();x.ellipse(0,0,rx*.52,ry*.55,0,0,Math.PI*2);x.fill();x.restore()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+const leopard=leopardTexture();
+function caseMaterial(){const d=designSel.value;if(d==='clear')return new THREE.MeshPhysicalMaterial({color:0xdde8ee,transparent:true,opacity:.30,roughness:.08,metalness:0,transmission:.42,thickness:.5,clearcoat:1,side:THREE.DoubleSide});let color=d==='black'?0x111216:d==='stone'?0xc9c1b5:0xffffff;return new THREE.MeshPhysicalMaterial({color,map:d==='leopard'?leopard:null,roughness:finish==='matte'?.62:.18,metalness:.03,clearcoat:finish==='matte'?.08:1,clearcoatRoughness:.08})}
+function addLens(g,x,y,z,r=.53){const outer=new THREE.Mesh(new THREE.CylinderGeometry(r,r,.24,40),new THREE.MeshPhysicalMaterial({color:0x333840,metalness:.8,roughness:.2}));outer.rotation.x=Math.PI/2;outer.position.set(x,y,z);g.add(outer);const glass=new THREE.Mesh(new THREE.CylinderGeometry(r*.73,r*.73,.27,40),new THREE.MeshPhysicalMaterial({color:0x07111d,metalness:.35,roughness:.05,clearcoat:1}));glass.rotation.x=Math.PI/2;glass.position.set(x,y,z-.05);g.add(glass);const glint=new THREE.Mesh(new THREE.SphereGeometry(r*.15,16,8),new THREE.MeshBasicMaterial({color:0x8fb8d9,transparent:true,opacity:.7}));glint.position.set(x-.13,y+.14,z-.2);g.add(glint)}
+function build(){
+ if(productGroup)scene.remove(productGroup); productGroup=new THREE.Group();scene.add(productGroup);
+ const m=catalog[brand][+phoneSel.value||0], W=m[2]/10,H=m[3]/10,D=m[4]/10, R=brand==='samsung'&&m[1]==='ultra'?.55:1.0;
+ const frameMat=new THREE.MeshPhysicalMaterial({color:brand==='iphone'?0x70747a:0x55595f,metalness:.82,roughness:.2,clearcoat:.7});
+ const body=roundedBox(W,H,D,R,frameMat);productGroup.add(body);
+ const screenMat=new THREE.MeshPhysicalMaterial({color:0x05080d,roughness:.04,metalness:.1,clearcoat:1});
+ const screen=roundedBox(W-.30,H-.30,.07,Math.max(.4,R-.15),screenMat);screen.position.z=D/2+.08;productGroup.add(screen);
+ const glow=new THREE.Mesh(new THREE.PlaneGeometry(W*.68,H*.52),new THREE.MeshBasicMaterial({color:0x805d35,transparent:true,opacity:.18}));glow.position.set(0,-1,D/2+.13);productGroup.add(glow);
+ // case: real back plate + four raised rails, leaving front glass visible
+ const cm=caseMaterial(),cw=W+.42,ch=H+.42,caseD=.34;
+ const back=roundedBox(cw,ch,caseD,R+.16,cm);back.position.z=-D/2-.23;productGroup.add(back);
+ const railMat=cm.clone(); if(designSel.value==='clear')railMat.opacity=.48;
+ const sideDepth=D+.65;
+ const left=new THREE.Mesh(new THREE.BoxGeometry(.30,ch-1.0,sideDepth),railMat);left.position.set(-cw/2+.13,0,0);productGroup.add(left);
+ const right=left.clone();right.position.x=cw/2-.13;productGroup.add(right);
+ const top=new THREE.Mesh(new THREE.BoxGeometry(cw-1.0,.30,sideDepth),railMat);top.position.set(0,ch/2-.13,0);productGroup.add(top);
+ const bottom=top.clone();bottom.position.y=-ch/2+.13;productGroup.add(bottom);
+ // front lip, clearly visible from front
+ const lipMat=railMat.clone();const lipZ=D/2+.13;
+ [left,right,top,bottom].forEach(()=>{});
+ const fl=new THREE.Mesh(new THREE.BoxGeometry(.18,ch-.7,.18),lipMat);fl.position.set(-cw/2+.10,0,lipZ);productGroup.add(fl);const fr=fl.clone();fr.position.x=cw/2-.10;productGroup.add(fr);
+ const ft=new THREE.Mesh(new THREE.BoxGeometry(cw-.7,.18,.18),lipMat);ft.position.set(0,ch/2-.10,lipZ);productGroup.add(ft);const fb=ft.clone();fb.position.y=-ch/2+.10;productGroup.add(fb);
+ // camera geometry on back
+ const z=-D/2-.48; const cam=new THREE.Group();productGroup.add(cam);
+ if(brand==='iphone'){
+   const bump=roundedBox(m[1]==='dual'?2.7:3.65,m[1]==='dual'?2.7:3.65,.24,.65,cm.clone());bump.position.set(-W/2+(m[1]==='dual'?1.65:2.05),H/2-(m[1]==='dual'?1.65:2.05),z+.10);cam.add(bump);
+   if(m[1]==='dual'){addLens(cam,-W/2+1.25,H/2-1.18,z-.15,.56);addLens(cam,-W/2+2.05,H/2-2.05,z-.15,.56)}
+   else {addLens(cam,-W/2+1.25,H/2-1.20,z-.15,.57);addLens(cam,-W/2+2.35,H/2-1.85,z-.15,.57);addLens(cam,-W/2+1.30,H/2-2.60,z-.15,.57)}
+ } else {
+   addLens(cam,-W/2+1.12,H/2-1.25,z-.18,.53);addLens(cam,-W/2+1.12,H/2-2.55,z-.18,.53);addLens(cam,-W/2+1.12,H/2-3.85,z-.18,.53);
+   if(m[1]==='ultra')addLens(cam,-W/2+2.28,H/2-2.05,z-.18,.34);
+ }
+ // logo on back as canvas sprite-like plane
+ const lc=document.createElement('canvas');lc.width=512;lc.height=100;const lx=lc.getContext('2d');lx.font='900 58px Arial';lx.textAlign='center';lx.fillStyle=designSel.value==='black'?'#d7b36a':'#d0a354';lx.fillText('TYGERME',256,67);const lt=new THREE.CanvasTexture(lc);lt.colorSpace=THREE.SRGBColorSpace;const logo=new THREE.Mesh(new THREE.PlaneGeometry(4.4,.86),new THREE.MeshBasicMaterial({map:lt,transparent:true,side:THREE.DoubleSide}));logo.position.set(0,-H/2+2.0,-D/2-.43);logo.rotation.y=Math.PI;productGroup.add(logo);
+ productGroup.rotation.x=-.08;
+ spec.textContent=`${m[0]} • ${m[1]==='dual'?'Dual camera':m[1]==='ultra'?'Ultra camera':m[1]==='triple'?'Triple camera':'Pro camera'} • ${finish[0].toUpperCase()+finish.slice(1)} • True 3D`;
+}
+function populate(){phoneSel.innerHTML=catalog[brand].map((m,i)=>`<option value="${i}">${m[0]}</option>`).join('');build()}
+document.querySelectorAll('[data-brand]').forEach(b=>b.onclick=()=>{brand=b.dataset.brand;document.querySelectorAll('[data-brand]').forEach(x=>x.classList.toggle('active',x===b));populate()});
+document.querySelectorAll('[data-finish]').forEach(b=>b.onclick=()=>{finish=b.dataset.finish;document.querySelectorAll('[data-finish]').forEach(x=>x.classList.toggle('active',x===b));build()});
+phoneSel.onchange=build;designSel.onchange=build;
+addBtn.onclick=()=>{const m=catalog[brand][+phoneSel.value||0];cart.push({id:'custom-'+Date.now(),name:`${designSel.options[designSel.selectedIndex].text} — ${m[0]}`,desc:`TYGERME ${finish} true 3D custom case`,price:49.95,type:'case',device:brand});updateCart();toast('Custom case added to bag')};
+$('#viewReset').onclick=()=>{camera.position.set(11,3,22);controls.target.set(0,0,0);controls.autoRotate=true;controls.update()};
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(stage);resize();populate();
+renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera)});
+}
